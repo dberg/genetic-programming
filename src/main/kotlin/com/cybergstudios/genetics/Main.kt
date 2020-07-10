@@ -38,9 +38,6 @@ fun randomExpr(pc: Array<String>, maxDepth: Int = 4, fpr: Double = 0.5, ppr: Dou
             Mul::class -> Mul(
                 randomExpr(pc, maxDepth - 1, fpr, ppr),
                 randomExpr(pc, maxDepth - 1, fpr, ppr))
-            //Div::class -> Div(
-            //    randomExpr(pc, maxDepth - 1, fpr, ppr),
-            //    randomExpr(pc, maxDepth - 1, fpr, ppr))
             If::class -> If(
                 randomExpr(pc, maxDepth - 1, fpr, ppr),
                 randomExpr(pc, maxDepth - 1, fpr, ppr),
@@ -67,7 +64,6 @@ fun mutate(e: Expr, pc: Array<String>, probchange: Double = 0.1): Expr {
             is Add -> Add(mutate(e.e1, pc), mutate(e.e2, pc))
             is Sub -> Sub(mutate(e.e1, pc), mutate(e.e2, pc))
             is Mul -> Mul(mutate(e.e1, pc), mutate(e.e2, pc))
-            //is Div -> Div(mutate(e.e1, pc), mutate(e.e2, pc))
             is If -> If(mutate(e.cond, pc), mutate(e.exprTrue, pc), mutate(e.exprFalse, pc))
             is Gt -> Gt(mutate(e.e1, pc), mutate(e.e2, pc))
         }
@@ -84,7 +80,6 @@ fun crossover(e1: Expr, e2: Expr, probswap: Double = 0.7, top: Boolean = true): 
             is Add -> Add(crossover(e1.e1, e2.randomChild(), probswap, false), crossover(e1.e2, e2.randomChild(), probswap, false))
             is Sub -> Sub(crossover(e1.e1, e2.randomChild(), probswap, false), crossover(e1.e2, e2.randomChild(), probswap, false))
             is Mul -> Mul(crossover(e1.e1, e2.randomChild(), probswap, false), crossover(e1.e2, e2.randomChild(), probswap, false))
-            //is Div -> Div(crossover(e1.e1, e2.randomChild(), probswap, false), crossover(e1.e2, e2.randomChild(), probswap, false))
             is If -> If(
                 crossover(e1.cond, e2.randomChild(), probswap, false),
                 crossover(e1.exprTrue, e2.randomChild(), probswap, false),
@@ -145,7 +140,7 @@ fun evolve(
         val scored = rank(population)
         winner = scored[0].second
         val winnerScore = scored[0].first
-        println(winnerScore)
+        println("$winnerScore\t$i")
         if (abs(winnerScore - 0.0) < 0.000001) break;
 
         // build the next generation
@@ -199,11 +194,12 @@ fun main(args: Array<String>) {
     println("--------------------------------------------------------------------------------")
     val dataset = buildHiddenSet()
     val rf = getRankFunction(dataset)
-    val evolvedExpr = evolve(variables, 500, rf, 500, 0.2, 0.1, 0.7, 0.1)
+    val evolvedExpr = evolve(variables, 1000, rf, 10000, 0.2, 0.1, 0.7, 0.1)
     println("evolved expr:\n$evolvedExpr")
 
-    //val evolvedExpr = evolve(variables, 5000, rf, 5000, 0.2, 0.1, 0.7, 0.2)
-    //0.007749497176098075
-    //evolved expr:
-    //(((( Context[x]  + ( Context[x]  + (( Context[y]  +  Context[y] ) + ( Context[x]  + (if ( 0.3982698023252428  > 0.0) {  Context[x]  } else {  Context[y]  }))))) + ((if ( Context[x]  > ( 0.7533623462933614  * (( Context[y]  -  Context[x] ) -  Context[y] ))) 1.0 else 0.0) +  3.1314018632511154E-4 )) + (((( Context[y]  + ((( 0.9993627460496781  + (if ( 0.42073487141258725  > (if ((if ( 0.8270598172038693  >  0.849312995975535 ) 1.0 else 0.0) >  Context[x] ) 1.0 else 0.0)) 1.0 else 0.0)) +  0.8058432992914634 ) - ( Context[x]  +  Context[y] ))) +  0.16247309044011993 ) +  0.30125583749684914 ) +  0.7308423254198689 )) - ((( 0.0020075377330577293  *  0.0017882992836799616 ) -  Context[x] ) *  Context[x] ))
+    // sample run
+    // score:
+    // 9.155704410446219E-5
+    // evolved expr:
+    // (( 0.8304631131471493  +  0.8333408868711532 ) + ((((((( 0.5451961050671689  + (if ( Context[y]  >  Context[y] ) 1.0 else 0.0)) + (( Context[x]  * (if ( 0.9417800340873351  > 0.0) {  Context[x]  } else { (if ( Context[y]  > 0.0) { (if (( Context[x]  +  Context[x] ) > 0.0) {  0.7067047558997694  } else { (if ((if ((if ((if ( Context[y]  > 0.0) {  Context[y]  } else { (( Context[y]  -  0.8095091346235621 ) +  0.905213171309831 ) }) >  Context[y] ) 1.0 else 0.0) >  0.20350888649813792 ) 1.0 else 0.0) > 0.0) { (( Context[y]  *  0.7689390992611634 ) * (if ( 0.9256184582840955  > 0.0) { ((if ( Context[y]  > 0.0) {  0.24788624930942094  } else {  0.41487596587099984  }) * (if ( 0.6369077188452328  > 0.0) {  Context[x]  } else {  Context[x]  })) } else {  Context[y]  })) } else {  Context[x]  }) }) } else {  0.13579980426446758  }) })) + ((( Context[y]  +  Context[x] ) -  Context[y] ) + ( 0.2700341708631939  *  2.890804994429841E-4 )))) + ( Context[y]  + (if ( Context[y]  > 0.0) {  Context[y]  } else {  0.4181422619078603  }))) + ( 0.9575814042156403  +  Context[x] )) +  Context[x] ) + (if ( Context[x]  > (( 0.8928274715875624  -  0.8578502752830313 ) -  0.550369515794871 )) 1.0 else 0.0)) +  0.8333408868711532 ))
 }

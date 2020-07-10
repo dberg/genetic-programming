@@ -16,7 +16,6 @@ sealed class Expr {
             Add::class,
             Sub::class,
             Mul::class,
-            //Div::class,
             If::class,
             Gt::class
         )
@@ -58,15 +57,6 @@ data class Mul(val e1: Expr, val e2: Expr) : Expr() {
     override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
     override fun toString(): String = "($e1 * $e2)"
 }
-
-/*
-data class Div(val e1: Expr, val e2: Expr) : Expr() {
-    override fun evaluate(ctx: Context): Double = e1.evaluate(ctx) / e2.evaluate(ctx)
-    override fun isTerminal(): Boolean = false
-    override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
-    override fun toString(): String = "($e1 / $e2)"
-}
-*/
 
 data class If(val cond: Expr, val exprTrue: Expr, val exprFalse: Expr) : Expr() {
     override fun evaluate(ctx: Context): Double =
