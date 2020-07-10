@@ -8,6 +8,10 @@ In this run the population was set to 1k and 10k generations.
 
 ![Sample run](output_sample.png)
 
+The x-axis is represents the generation and y-axis represents the score. The
+score is better as it approaches zero. In this run the score of the winning
+expression was 9.16E-5.
+
 The task is to discover the function:
 
 ```
