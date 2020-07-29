@@ -34,10 +34,10 @@ fun evolve(
         // build the next generation
         val newpop: Population = Array(population.size) {
             // the two best always make it
-            if (it == 0 || it == 1) population.get(it)
+            if (it == 0 || it == 1) population[it]
             else {
                 if (random() > pnew) {
-                    val expr = crossover(scored.get(selectIndex()).second, scored.get(selectIndex()).second, breedingRate)
+                    val expr = crossover(scored[selectIndex()].second, scored[selectIndex()].second, breedingRate)
                     mutate(expr, pc, mutationRate)
                 } else {
                     // add a random node to mix thing sup

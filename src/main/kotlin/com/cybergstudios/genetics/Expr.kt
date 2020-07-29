@@ -26,7 +26,7 @@ data class Const(val v: Double) : Expr() {
     override fun evaluate(ctx: Context): Double = v
     override fun isTerminal(): Boolean = true
     override fun randomChild(): Expr = this
-    override fun toString(): String = " $v "
+    override fun toString(): String = "Const($v)"
 }
 
 data class Param(val name: String) : Expr() {
@@ -34,28 +34,28 @@ data class Param(val name: String) : Expr() {
         ctx.getOrElse(name, { throw RuntimeException("Mal-formed Context") })
     override fun isTerminal(): Boolean = true
     override fun randomChild(): Expr = this
-    override fun toString(): String = " Context[$name] "
+    override fun toString(): String = "Param(\"$name\")"
 }
 
 data class Add(val e1: Expr, val e2: Expr) : Expr() {
     override fun evaluate(ctx: Context): Double = e1.evaluate(ctx) + e2.evaluate(ctx)
     override fun isTerminal(): Boolean = false
     override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
-    override fun toString(): String = "($e1 + $e2)"
+    override fun toString(): String = "Add($e1, $e2)"
 }
 
 data class Sub(val e1: Expr, val e2: Expr) : Expr() {
     override fun evaluate(ctx: Context): Double = e1.evaluate(ctx) - e2.evaluate(ctx)
     override fun isTerminal(): Boolean = false
     override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
-    override fun toString(): String = "($e1 - $e2)"
+    override fun toString(): String = "Sub($e1, $e2)"
 }
 
 data class Mul(val e1: Expr, val e2: Expr) : Expr() {
     override fun evaluate(ctx: Context): Double = e1.evaluate(ctx) * e2.evaluate(ctx)
     override fun isTerminal(): Boolean = false
     override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
-    override fun toString(): String = "($e1 * $e2)"
+    override fun toString(): String = "Mul($e1, $e2)"
 }
 
 data class If(val cond: Expr, val exprTrue: Expr, val exprFalse: Expr) : Expr() {
@@ -67,7 +67,7 @@ data class If(val cond: Expr, val exprTrue: Expr, val exprFalse: Expr) : Expr() 
         1 -> exprTrue
         else -> exprFalse
     }
-    override fun toString(): String = "(if ($cond > 0.0) { $exprTrue } else { $exprFalse })"
+    override fun toString(): String = "If($cond, $exprTrue, $exprFalse)"
 }
 
 data class Gt(val e1: Expr, val e2: Expr) : Expr() {
@@ -75,5 +75,5 @@ data class Gt(val e1: Expr, val e2: Expr) : Expr() {
         if (e1.evaluate(ctx) > e2.evaluate(ctx)) 1.0 else 0.0
     override fun isTerminal(): Boolean = false
     override fun randomChild(): Expr = if (Random.nextBoolean()) e1 else e2
-    override fun toString(): String = "(if ($e1 > $e2) 1.0 else 0.0)"
+    override fun toString(): String = "Gt($e1,$e2)"
 }

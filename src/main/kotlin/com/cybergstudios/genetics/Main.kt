@@ -41,42 +41,66 @@ fun getRankFunction(dataset: Dataset): (Population) -> ScoredPopulation =
             .toTypedArray()
     }
 
+fun sampleResult(): Expr = Add(Add(Add(Mul(Param("x"), Param("x")), Add(Param("x"), Param("y"))), Add(Add(Param("x"), Add(Gt(Mul(Param("x"), Param("y")),If(Mul(If(Gt(Param("y"),Param("y")), Gt(Const(0.19461961582865006),Const(0.4055039316155936)), Param("y")), Sub(Gt(Const(0.875451443202543),Param("x")), Param("x"))), Gt(Mul(Const(0.12025225441289078), Const(0.11970683002894345)),Param("y")), If(Param("x"), Const(0.5347030795768023), Const(0.15515739996369393)))), Param("y"))), Param("x"))), Add(Add(Gt(Const(0.4858039982862735),Sub(Const(0.15187656831984542), Param("x"))), Gt(Const(0.8825479234040398),Const(0.7533698766486537))), Add(Gt(Add(Const(0.9526475953120076), Const(0.42252085669747863)),Const(0.8825479234040398)), Gt(Param("y"),Sub(Gt(Param("x"),Param("y")), Const(0.7914566521846355))))))
+
 fun main(args: Array<String>) {
-    val expr = exampleExpr()
-    val ctx1: Context = mapOf("x" to 2.0, "y" to 3.0)
-    val ctx2: Context = mapOf("x" to 5.0, "y" to 3.0)
-
-    println("expr:\n$expr")
-    println("--------------------------------------------------------------------------------")
-    // (if ((if ( Context[x]  >  3.0 ) 1.0 else 0.0) > 0.0) { ( Context[y]  +  5.0 ) } else { ( Context[y]  -  2.0 ) })
-
-    println(expr.evaluate(ctx1)) // 1.0
-    println(expr.evaluate(ctx2)) // 8.0
-    println("--------------------------------------------------------------------------------")
+    if (args.isEmpty()) {
+        println("Options: examples | learn | compare")
+        return
+    }
 
     val variables = arrayOf("x", "y")
-    val rndExpr = randomExpr(variables)
-    println(rndExpr)
-    println(rndExpr.evaluate(ctx1))
-    println("--------------------------------------------------------------------------------")
 
-    println("expr mutation:\n" + mutate(expr, variables))
+    // Run a few examples
+    if (args[0] == "examples") {
+        val expr = exampleExpr()
+        val ctx1: Context = mapOf("x" to 2.0, "y" to 3.0)
+        val ctx2: Context = mapOf("x" to 5.0, "y" to 3.0)
 
-    println("--------------------------------------------------------------------------------")
-    val expr2 = exampleExpr()
-    println("expr2:\n$expr2")
-    val crossover = crossover(expr, expr2)
-    println("crossover:\n$crossover")
+        println("expr:\n$expr")
+        println("--------------------------------------------------------------------------------")
 
-    println("--------------------------------------------------------------------------------")
-    val dataset = buildHiddenSet()
-    val rf = getRankFunction(dataset)
-    val evolvedExpr = evolve(variables, 1000, rf, 10000, 0.2, 0.1, 0.7, 0.1)
-    println("evolved expr:\n$evolvedExpr")
+        println(expr.evaluate(ctx1)) // 1.0
+        println(expr.evaluate(ctx2)) // 8.0
+        println("--------------------------------------------------------------------------------")
 
-    // sample run
-    // score:
-    // 9.155704410446219E-5
-    // evolved expr:
-    // (( 0.8304631131471493  +  0.8333408868711532 ) + ((((((( 0.5451961050671689  + (if ( Context[y]  >  Context[y] ) 1.0 else 0.0)) + (( Context[x]  * (if ( 0.9417800340873351  > 0.0) {  Context[x]  } else { (if ( Context[y]  > 0.0) { (if (( Context[x]  +  Context[x] ) > 0.0) {  0.7067047558997694  } else { (if ((if ((if ((if ( Context[y]  > 0.0) {  Context[y]  } else { (( Context[y]  -  0.8095091346235621 ) +  0.905213171309831 ) }) >  Context[y] ) 1.0 else 0.0) >  0.20350888649813792 ) 1.0 else 0.0) > 0.0) { (( Context[y]  *  0.7689390992611634 ) * (if ( 0.9256184582840955  > 0.0) { ((if ( Context[y]  > 0.0) {  0.24788624930942094  } else {  0.41487596587099984  }) * (if ( 0.6369077188452328  > 0.0) {  Context[x]  } else {  Context[x]  })) } else {  Context[y]  })) } else {  Context[x]  }) }) } else {  0.13579980426446758  }) })) + ((( Context[y]  +  Context[x] ) -  Context[y] ) + ( 0.2700341708631939  *  2.890804994429841E-4 )))) + ( Context[y]  + (if ( Context[y]  > 0.0) {  Context[y]  } else {  0.4181422619078603  }))) + ( 0.9575814042156403  +  Context[x] )) +  Context[x] ) + (if ( Context[x]  > (( 0.8928274715875624  -  0.8578502752830313 ) -  0.550369515794871 )) 1.0 else 0.0)) +  0.8333408868711532 ))
+        val rndExpr = randomExpr(variables)
+        println(rndExpr)
+        println(rndExpr.evaluate(ctx1))
+        println("--------------------------------------------------------------------------------")
+
+        println("expr mutation:\n" + mutate(expr, variables))
+
+        println("--------------------------------------------------------------------------------")
+        val expr2 = exampleExpr()
+        println("expr2:\n$expr2")
+        val crossover = crossover(expr, expr2)
+        println("crossover:\n$crossover")
+    }
+
+    // There goes some manual labor to move the expression from the bottom of the output
+    // if you want to plot it
+    if (args[0] == "learning") {
+        val dataset = buildHiddenSet()
+        val rf = getRankFunction(dataset)
+        val evolvedExpr = evolve(variables, 1000, rf, 10000, 0.1, 0.4, 0.7, 0.05)
+        println("evolved expr:\n$evolvedExpr")
+        return
+    }
+
+    // Compare sample result against our hidden function
+    if (args[0] == "compare") {
+        val expr = sampleResult()
+        for (x in -100 .. 100) {
+            for (y in -100 .. 100) {
+                val zHidden = hiddenFunction(x.toDouble(), y.toDouble())
+                val zLearned = expr.evaluate(mapOf("x" to x.toDouble(), "y" to y.toDouble()))
+                println("$x\t$y\t$zHidden\t$zLearned")
+            }
+        }
+        return
+    }
+
+    println("I don't speak your language!")
+
 }
